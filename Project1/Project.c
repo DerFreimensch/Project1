@@ -2,28 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct dates  // структура для работы с день-месяц-год-событие
+struct dates  // structure for day-month-year-event
 {
     int day;
     char month[10];
     int year;
     char event[150];
 };
-int choose;
+char garbage[2];// garbage for '\n'
+char eve[150];
 struct dates dat;
 FILE* fale_1;
 
-void Add() { // функция занесения в БД
-
-    scanf_s("%d %s %d %s", &dat.day, dat.month, (unsigned)_countof(dat.month), &dat.year, dat.event, (unsigned)_countof(dat.month));
+void Add() { // function add in database
+    printf("write day, month, year, event\n");
+    scanf_s("%d%s%d", &dat.day, dat.month, (unsigned)_countof(dat.month), &dat.year);
+    gets(garbage);
+    gets(dat.event);
     fseek(fale_1, 0, SEEK_END);
     fwrite(&dat.day, sizeof(int), 1, fale_1);
     fwrite(&dat.month, sizeof(char), 10, fale_1);
     fwrite(&dat.year, sizeof(int), 1, fale_1);
     fwrite(&dat.event, sizeof(char), 150, fale_1);
+    
 }
 
-void Search() { // фуенкция поиска необходимых дат
+void Search() { // function looking for data
     fseek(fale_1, 0, SEEK_SET);
     int d = dat.day;
     char m[10];
@@ -37,24 +41,29 @@ void Search() { // фуенкция поиска необходимых дат
         int flag = 1;
         flag = strncmp(dat.month, m, 3);
         if (dat.day == d && dat.year == y && flag == 0) {
-            fseek(fale_1, 0, SEEK_CUR);
-            printf("%d%s%d%s", dat.day, dat.month, dat.year, dat.event);
-        }
+            printf("%d %s %d: %s\n", dat.day, dat.month, dat.year, dat.event);
+            dat.day = 0;
+            }
         
     }
+    printf("\n");
 
 }
-void Delete() { // функция удаления определенных записей
+void Delete() { // function deleting data
 
 }
 
-void Edit() { // функция изменения записи
+void Edit() { // function editing data
     printf("%s\n", "Which date you want to see ");
-    scanf_s("%d %s %d", &dat.day, dat.month, (unsigned)_countof(dat.month), &dat.year);
+    scanf_s(" %d", &dat.day);
+    scanf_s(" %s", dat.month, (unsigned)_countof(dat.month));
+    scanf_s(" %d", &dat.year);
+    printf("\nThere are events: \n");
     Search();
 }
 
-void Choose() {
+void Choose() { //function of menu
+    int choose;
     printf("%s\n", "What you want to do?");
     printf("%s\n", "1) Add event");
     printf("%s\n", "2) Edit event");
@@ -62,7 +71,7 @@ void Choose() {
     printf("%s\n", "4) Show the data");
     printf("%s\n", "0) Exit");
     scanf_s("%d", &choose);
-    printf("%s\n", (choose < 0) || (choose > 4) ? "Wrong option" : "Loading...    Ready");
+    //printf("%s\n", (choose  < 0) || (choose > 4)? "Wrong option" : "Loading...    Ready");
     switch (choose) {
     case 1:
         Add();
@@ -74,9 +83,11 @@ void Choose() {
         break;
     case 3:
         printf("something");
+        Choose();
         break;
     case 4:
         printf("Событие %s назначено на %d %s %d", dat.event, dat.day, dat.month, dat.year);
+        Choose();
         break;
     case 0:
         fclose(fale_1);
