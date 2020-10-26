@@ -1,3 +1,4 @@
+#define CTR_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,15 +39,20 @@ void Add() { // function add in database
         break;
     }
     printf("%s\n", "event: ");
+    getchar();
     gets(dat.event);
     if (classificationch == 1) {
         printf("%s\n", "Name: ");
+   
         gets(dat.name);
+        
     }
     if (classificationch == 2) {
         printf("%s\n", "Celebration: ");
         gets(dat.celebration);
+        
     }
+    
     fseek(fale_1, 0, SEEK_END);
     fwrite(&dat.day, sizeof(int), 1, fale_1);
     fwrite(&dat.month, sizeof(char), 10, fale_1);
@@ -92,7 +98,7 @@ void SearchForName() { // function of looking for name
         fread(&dat.event, sizeof(char), 150, fale_1);
         fread(&dat.classification, sizeof(char), 15, fale_1);
         fread(&dat.name, sizeof(char), 100, fale_1);
-        if (n == dat.name) {
+        if (dat.name == n) {
             printf("%d %s %d: %s (%s of %s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.name);
         }
     }
@@ -108,21 +114,26 @@ void SearchForCategory() { // function of looking for category
         fread(&dat.event, sizeof(char), 150, fale_1);
         fread(&dat.classification, sizeof(char), 15, fale_1);
         fread(&dat.name, sizeof(char), 100, fale_1);
-        if (n == dat.classification) {
+        if (dat.classification ==  n) {
             printf("%d %s %d: %s (%s of %s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.name);
         }
     }
 }
 void Delete() { // function deleting data
+
     fseek(fale_1, 0, SEEK_SET);
-    fopen(fale_2,"file2.dat", "w+t");
+    fopen_s(&fale_2,"file2.dat", "w+b");
+    if (fale_2 == 0)
+        printf("error on fopen\n");
+
     int d, y;
     char n[10];
-    printf("%\n", "which data want you delete?(D/M/Y) ");
+    printf("%s\n", "which data want you delete?(D/M/Y) ");
     d = scanf_s(" %d", &dat.day);
     scanf_s(" %s", dat.month, (unsigned)_countof(dat.month));
     y = scanf_s(" %d", &dat.year);
     strcpy_s(n, _countof(n), dat.month);
+    fseek(fale_2, 0, SEEK_SET);
     while (!feof(fale_1)) {
         fread(&dat.day, sizeof(int), 1, fale_1);
         fread(&dat.month, sizeof(char), 10, fale_1);
@@ -132,9 +143,34 @@ void Delete() { // function deleting data
         fread(&dat.name, sizeof(char), 100, fale_1);
         int flag = 1;
         flag = strncmp(dat.month, n, 3);
+        
         if (dat.day != d || dat.year != y || flag != 0) {
-
+            fwrite(&dat.day, sizeof(int), 1, fale_2);
+            fwrite(&dat.month, sizeof(char), 10, fale_2);
+            fwrite(&dat.year, sizeof(int), 1, fale_2);
+            fwrite(&dat.event, sizeof(char), 150, fale_2);
+            fwrite(&dat.classification, sizeof(char), 12, fale_2);
+            fwrite(&dat.name, sizeof(char), 50, fale_2);
         }
+    }
+    fseek(fale_2, 0, SEEK_SET);
+    fclose(fale_1);
+    fopen_s(&fale_1, "file.dat", "w+b");
+    if (fale_1 == 0)
+        printf("error on fopen\n");
+    while (!feof(fale_2)) {
+        fread(&dat.day, sizeof(int), 1, fale_2);
+        fread(&dat.month, sizeof(char), 10, fale_2);
+        fread(&dat.year, sizeof(int), 1, fale_2);
+        fread(&dat.event, sizeof(char), 150, fale_2);
+        fread(&dat.classification, sizeof(char), 15, fale_2);
+        fread(&dat.name, sizeof(char), 100, fale_2);
+        fwrite(&dat.day, sizeof(int), 1, fale_1);
+        fwrite(&dat.month, sizeof(char), 10, fale_1);
+        fwrite(&dat.year, sizeof(int), 1, fale_1);
+        fwrite(&dat.event, sizeof(char), 150, fale_1);
+        fwrite(&dat.classification, sizeof(char), 12, fale_1);
+        fwrite(&dat.name, sizeof(char), 50, fale_1);
     }
 
 }
@@ -159,6 +195,7 @@ void Edit() { // function editing data
     case 2:
         printf("%s\n", "Print Name: ");
         scanf_s("%s", dat.name, (unsigned)_countof(dat.name));
+        printf("There are events: \n");
         SearchForName();
         break;
     case 3:
@@ -178,6 +215,7 @@ void Edit() { // function editing data
             strcpy_s(dat.classification, _countof(dat.classification), "Event");
             break;
         }
+        printf("\nThere are events: \n");
         SearchForCategory();
         break;
     }
@@ -205,7 +243,7 @@ void Choose() { //function of menu
         Choose();
         break;
     case 3:
-        printf("something");
+        Delete();
         Choose();
         break;
     case 4:
