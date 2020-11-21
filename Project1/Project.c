@@ -9,9 +9,9 @@ struct dates  // structure for day-month-year-event-name-classification
     char month[10];
     int year;
     char event[150];
-    char name[50];
     char classification[15];
     char celebration[100];
+    char name[100];
     
 };
 struct dates dat;
@@ -21,7 +21,9 @@ FILE* fale_2;
 void Add() { // function add in database
     int classificationch;
     printf("write day, month, year\n");
-    scanf_s("%d%s%d", &dat.day, dat.month, (unsigned)_countof(dat.month), &dat.year);
+    scanf_s("%d", &dat.day);
+    scanf_s("%s", dat.month, (unsigned)_countof(dat.month));
+    scanf_s("%d", &dat.year);
     printf("%s\n", "Choose category");
     printf("%s\n", "1) Birth Day");
     printf("%s\n", "2) Celebration");
@@ -58,8 +60,9 @@ void Add() { // function add in database
     fwrite(&dat.month, sizeof(char), 10, fale_1);
     fwrite(&dat.year, sizeof(int), 1, fale_1);
     fwrite(&dat.event, sizeof(char), 150, fale_1);
-    fwrite(&dat.classification, sizeof(char), 12, fale_1);
-    fwrite(&dat.name, sizeof(char), 50, fale_1);
+    fwrite(&dat.classification, sizeof(char), 15, fale_1);
+    fwrite(&dat.celebration, sizeof(char), 100, fale_1);
+    fwrite(&dat.name, sizeof(char), 100, fale_1);
     
 }
 
@@ -75,11 +78,12 @@ void SearchForData() { // function looking for data
         fread(&dat.year, sizeof(int), 1, fale_1);
         fread(&dat.event, sizeof(char), 150, fale_1);
         fread(&dat.classification, sizeof(char), 15, fale_1);
+        fread(&dat.celebration, sizeof(char), 100, fale_1);
         fread(&dat.name, sizeof(char), 100, fale_1);
         int flag = 1;
         flag = strncmp(dat.month, m, 3);
         if (dat.day == d && dat.year == y && flag == 0) {
-            printf("%d %s %d: %s (%s of %s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.name);
+            printf("%d %s %d: %s (%s of %s%s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.celebration, dat.name);
             dat.day = 0;
             }
         
@@ -97,11 +101,14 @@ void SearchForName() { // function of looking for name
         fread(&dat.year, sizeof(int), 1, fale_1);
         fread(&dat.event, sizeof(char), 150, fale_1);
         fread(&dat.classification, sizeof(char), 15, fale_1);
+        fread(&dat.celebration, sizeof(char), 100, fale_1);
         fread(&dat.name, sizeof(char), 100, fale_1);
-        if (dat.name == n) {
-            printf("%d %s %d: %s (%s of %s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.name);
+        if (strcmp (dat.name, n)==0) {
+            printf("%d %s %d: %s (%s of %s%s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.celebration, dat.name);
+            strcpy_s(dat.name, _countof(dat.name), "error");
         }
     }
+    printf("\n");
 }
 void SearchForCategory() { // function of looking for category
     fseek(fale_1, 0, SEEK_SET);
@@ -113,69 +120,108 @@ void SearchForCategory() { // function of looking for category
         fread(&dat.year, sizeof(int), 1, fale_1);
         fread(&dat.event, sizeof(char), 150, fale_1);
         fread(&dat.classification, sizeof(char), 15, fale_1);
+        fread(&dat.celebration, sizeof(char), 100, fale_1);
         fread(&dat.name, sizeof(char), 100, fale_1);
-        if (dat.classification ==  n) {
+        if (strcmp(dat.classification, n) == 0) {
             printf("%d %s %d: %s (%s of %s) \n", dat.day, dat.month, dat.year, dat.event, dat.classification, dat.name);
+            strcpy_s(dat.classification, _countof(dat.classification), "error");
         }
     }
 }
-void Delete() { // function deleting data
+void Edit() { // function deleting data
 
     fseek(fale_1, 0, SEEK_SET);
-    fopen_s(&fale_2,"file2.dat", "w+b");
+    fopen_s(&fale_2, "exfile.dat", "w+b");
     if (fale_2 == 0)
         printf("error on fopen\n");
 
     int d, y;
     char n[10];
     printf("%s\n", "which data want you delete?(D/M/Y) ");
-    d = scanf_s(" %d", &dat.day);
+    scanf_s(" %d", &dat.day);
     scanf_s(" %s", dat.month, (unsigned)_countof(dat.month));
-    y = scanf_s(" %d", &dat.year);
+    scanf_s(" %d", &dat.year);
+    d = dat.day;
+    y = dat.year;
     strcpy_s(n, _countof(n), dat.month);
-    fseek(fale_2, 0, SEEK_SET);
+    fseek(fale_2, 0, SEEK_END);
     while (!feof(fale_1)) {
         fread(&dat.day, sizeof(int), 1, fale_1);
         fread(&dat.month, sizeof(char), 10, fale_1);
         fread(&dat.year, sizeof(int), 1, fale_1);
         fread(&dat.event, sizeof(char), 150, fale_1);
         fread(&dat.classification, sizeof(char), 15, fale_1);
+        fread(&dat.celebration, sizeof(char), 100, fale_1);
         fread(&dat.name, sizeof(char), 100, fale_1);
-        int flag = 1;
-        flag = strncmp(dat.month, n, 3);
-        
-        if (dat.day != d || dat.year != y || flag != 0) {
+
+        if (dat.day != d || dat.year != y || strncmp(dat.month, n, 3) != 0) {
             fwrite(&dat.day, sizeof(int), 1, fale_2);
             fwrite(&dat.month, sizeof(char), 10, fale_2);
             fwrite(&dat.year, sizeof(int), 1, fale_2);
             fwrite(&dat.event, sizeof(char), 150, fale_2);
-            fwrite(&dat.classification, sizeof(char), 12, fale_2);
-            fwrite(&dat.name, sizeof(char), 50, fale_2);
+            fwrite(&dat.classification, sizeof(char), 15, fale_2);
+            fwrite(&dat.celebration, sizeof(char), 100, fale_2);
+            fwrite(&dat.name, sizeof(char), 100, fale_2);
+            fseek(fale_2, 0, SEEK_END);
+            dat.day = d;
+            dat.year = y;
+            strcpy_s(dat.month, sizeof(dat.month), n);
         }
     }
-    fseek(fale_2, 0, SEEK_SET);
     fclose(fale_1);
-    fopen_s(&fale_1, "file.dat", "w+b");
-    if (fale_1 == 0)
+    fclose(fale_2);
+    remove("file.dat");
+    rename("exfile.dat", "file.dat");
+    fopen_s(&fale_1, "file.dat", "r+b");
+}
+void Delete() { // function deleting data
+
+    fseek(fale_1, 0, SEEK_SET);
+    fopen_s(&fale_2,"exfile.dat", "w+b");
+    if (fale_2 == 0)
         printf("error on fopen\n");
-    while (!feof(fale_2)) {
-        fread(&dat.day, sizeof(int), 1, fale_2);
-        fread(&dat.month, sizeof(char), 10, fale_2);
-        fread(&dat.year, sizeof(int), 1, fale_2);
-        fread(&dat.event, sizeof(char), 150, fale_2);
-        fread(&dat.classification, sizeof(char), 15, fale_2);
-        fread(&dat.name, sizeof(char), 100, fale_2);
-        fwrite(&dat.day, sizeof(int), 1, fale_1);
-        fwrite(&dat.month, sizeof(char), 10, fale_1);
-        fwrite(&dat.year, sizeof(int), 1, fale_1);
-        fwrite(&dat.event, sizeof(char), 150, fale_1);
-        fwrite(&dat.classification, sizeof(char), 12, fale_1);
-        fwrite(&dat.name, sizeof(char), 50, fale_1);
+
+    int d, y;
+    char n[10];
+    printf("%s\n", "which data want you delete?(D/M/Y) ");
+    scanf_s(" %d", &dat.day);
+    scanf_s(" %s", dat.month, (unsigned)_countof(dat.month));
+    scanf_s(" %d", &dat.year);
+    d = dat.day;
+    y = dat.year;
+    strcpy_s(n, _countof(n), dat.month);
+    fseek(fale_2, 0, SEEK_END);
+    while (!feof(fale_1)) {
+        fread(&dat.day, sizeof(int), 1, fale_1);
+        fread(&dat.month, sizeof(char), 10, fale_1);
+        fread(&dat.year, sizeof(int), 1, fale_1);
+        fread(&dat.event, sizeof(char), 150, fale_1);
+        fread(&dat.classification, sizeof(char), 15, fale_1);
+        fread(&dat.celebration, sizeof(char), 100, fale_1);
+        fread(&dat.name, sizeof(char), 100, fale_1);
+        
+        if (dat.day != d || dat.year != y || strncmp(dat.month, n, 3) != 0) {
+            fwrite(&dat.day, sizeof(int), 1, fale_2);
+            fwrite(&dat.month, sizeof(char), 10, fale_2);
+            fwrite(&dat.year, sizeof(int), 1, fale_2);
+            fwrite(&dat.event, sizeof(char), 150, fale_2);
+            fwrite(&dat.classification, sizeof(char), 15, fale_2);
+            fwrite(&dat.celebration, sizeof(char), 100, fale_2);
+            fwrite(&dat.name, sizeof(char), 100, fale_2);
+            fseek(fale_2, 0, SEEK_END);
+            dat.day = d;
+            dat.year = y;
+            strcpy_s(dat.month, sizeof(dat.month), n);
+        }
+    }
+    fclose(fale_1);
+    fclose(fale_2);
+    remove("file.dat");
+    rename("exfile.dat", "file.dat");
+    fopen_s(&fale_1, "file.dat", "r+b");
     }
 
-}
-
-void Edit() { // function editing data
+void search() { // function editing data
     int classificationch;
     int look;
     printf("%s\n", "Look for with: ");
@@ -239,7 +285,7 @@ void Choose() { //function of menu
         Choose();
         break;
     case 2:
-        Edit();
+        //Edit();
         Choose();
         break;
     case 3:
@@ -247,7 +293,7 @@ void Choose() { //function of menu
         Choose();
         break;
     case 4:
-        printf("Событие %s назначено на %d %s %d", dat.event, dat.day, dat.month, dat.year);
+        search();
         Choose();
         break;
     case 0:

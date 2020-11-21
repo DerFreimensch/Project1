@@ -20,8 +20,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="file.dat">
+    <None Include="file.dat">
       <Filter>Исходные файлы</Filter>
-    </Text>
+    </None>
+    <None Include="exfile.dat">
+      <Filter>Исходные файлы</Filter>
+    </None>
   </ItemGroup>
 </Project>
