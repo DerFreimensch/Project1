@@ -1,4 +1,8 @@
 #define CTR_SECURE_NO_WARNINGS
+#define A 10
+#define B 15
+#define C 100
+#define D 150
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,12 +10,12 @@
 struct dates  // structure for day-month-year-event-name-classification
 {
     int day;
-    char month[10];
+    char month[A];
     int year;
-    char event[150];
-    char classification[15];
-    char celebration[100];
-    char name[100];
+    char event[D];
+    char classification[B];
+    char celebration[C];
+    char name[C];
     
 };
 struct dates dat;
